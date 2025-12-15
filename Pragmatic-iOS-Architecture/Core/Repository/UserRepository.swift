@@ -8,13 +8,14 @@
 import Foundation
 import Combine
 
+enum LoginType {
+    case basic(username: String, password: String)
+    case firebase(token: String)
+    case sso(token: String, provider: String)
+}
+
 protocol UserRepositoryProtocol {
-    func login(
-        username: String,
-        password: String,
-        fcmToken: String
-    ) -> AnyPublisher<AuthDataResponse, Error>
-    
+    func login(with request: LoginType) -> AnyPublisher<AuthDataResponse, Error>
     func getProfile() -> AnyPublisher<UserProfileResponse, Error>
     func logout()
 }
@@ -42,41 +43,30 @@ final class UserRepository: UserRepositoryProtocol {
     }
     
     // MARK: - Login
-    func login(
-        username: String,
-        password: String,
-        fcmToken: String
-    ) -> AnyPublisher<AuthDataResponse, Error> {
+    func login(with request: LoginType) -> AnyPublisher<AuthDataResponse, Error> {
+        let router: AppRouter
         
-        let parameters: [String: String] = [
-            "username": username,
-            "password": password,
-            "fcm_token": fcmToken
-        ]
-        
-        let router = AppRouter.login(credentials: parameters)
+        switch request {
+        case .basic(let user, let pass):
+            router = .login(credentials: ["username": user, "password": pass])
+        case .firebase(let token):
+            router = .firebaseLogin(token: token)
+        case .sso(let token, let provider): // Ambil provider-nya juga
+            router = .ssoLogin(token: token, provider: provider)
+        }
         
         return client.request(router: router)
             .parseAPIResponse(type: AuthDataResponse.self)
-        
-        // SIDE EFFECT: simpan token + cache user
             .handleEvents(receiveOutput: { [weak self] response in
                 guard let self = self else { return }
                 
-                try? self.secureStorage.saveToken(
-                    response.accessToken,
-                    key: self.accessTokenKey
-                )
+                // 1. Simpan ke Keychain (Security)
+                try? self.secureStorage.saveToken(response.accessToken, key: self.accessTokenKey)
+                try? self.secureStorage.saveToken(response.refreshToken, key: self.refreshTokenKey)
                 
-                try? self.secureStorage.saveToken(
-                    response.refreshToken,
-                    key: self.refreshTokenKey
-                )
-                
-                self.storage.save(
-                    response.userInfo,
-                    key: StorageKeys.sessionUser
-                )
+                // 2. Simpan ke UserDefaults (Performance/UI)
+                // Pake StorageKeys yang udah lu buat biar gak typo!
+                self.storage.save(response.userInfo, key: StorageKeys.sessionUser)
             })
             .eraseToAnyPublisher()
     }
@@ -110,8 +100,13 @@ final class UserRepository: UserRepositoryProtocol {
     
     // MARK: - Logout
     func logout() {
+        // 1. Tembak API Logout (Optional, biar refresh token di BE mati)
+        // client.request(router: .logout)...
+        
+        // 2. Sapu bersih lokal (Wajib)
         try? secureStorage.clearAll()
         storage.remove(key: StorageKeys.sessionUser)
         storage.remove(key: StorageKeys.fullProfile)
+        
     }
 }

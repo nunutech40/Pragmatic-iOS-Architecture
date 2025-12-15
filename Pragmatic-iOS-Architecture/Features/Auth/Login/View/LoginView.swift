@@ -157,10 +157,7 @@ extension LoginView {
     var loginButtonSection: some View {
         Button {
             hideKeyboard()
-            viewModel.login(
-                username: email,
-                password: password
-            )
+            viewModel.performLogin(type: .basic(username: email, password: password))
         } label: {
             HStack {
                 if viewModel.isLoading {

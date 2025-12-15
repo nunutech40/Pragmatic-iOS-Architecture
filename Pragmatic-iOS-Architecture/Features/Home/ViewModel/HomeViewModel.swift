@@ -10,39 +10,37 @@ import Combine
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-
-    // MARK: - Dependency
     private let repository: UserRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
 
-    // MARK: - UI State
-    @Published var user: UserProfileResponse?
+    @Published var fullProfile: UserProfileResponse? // Data lengkap dari API
     @Published var errorMessage: String = ""
     @Published var isLoading: Bool = false
+    
+    // Simpan data minimalis dari login
+    let sessionUser: UserInfo?
 
-    // MARK: - Init
-    init(repository: UserRepositoryProtocol) {
+    init(repository: UserRepositoryProtocol, sessionUser: UserInfo? = nil) {
         self.repository = repository
+        self.sessionUser = sessionUser
     }
 
-    // MARK: - Load Profile
     func loadProfile() {
+        // Cek dulu, kalau ini SSO/Firebase dan datanya sudah dianggap cukup,
+        // mungkin lu mau skip. Tapi kalau tetep mau detail (no_telp dll), lanjut tembak API.
+        
         isLoading = true
         errorMessage = ""
 
-        repository
-            .getProfile()
+        repository.getProfile()
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
-
-                self.isLoading = false
-
+                self?.isLoading = false
                 if case .failure(let error) = completion {
-                    self.errorMessage = error.localizedDescription
+                    self?.errorMessage = error.localizedDescription
                 }
-            } receiveValue: { [weak self] user in
-                self?.user = user
+            } receiveValue: { [weak self] profile in
+                self?.fullProfile = profile
             }
             .store(in: &cancellables)
     }

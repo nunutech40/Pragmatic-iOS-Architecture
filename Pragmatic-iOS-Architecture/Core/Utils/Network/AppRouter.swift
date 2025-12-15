@@ -29,6 +29,8 @@ enum AppRouter: APIEndpoint {
     
     // POST Requests
     case login(credentials: [String: String])
+    case firebaseLogin(token: String) // Tambahan
+    case ssoLogin(token: String, provider: String) // Tambahan
     case getProfile
     case submitOrder(data: [String: String])
     
@@ -36,10 +38,10 @@ enum AppRouter: APIEndpoint {
     
     var method: HTTPMethod {
         switch self {
-        case .getCategories, .searchProducts, .getProfile:
-            return .get
-        case .login, .submitOrder: // Tambahkan semua POST case di sini
+        case .login, .firebaseLogin, .ssoLogin, .submitOrder:
             return .post
+        default:
+            return .get
         }
     }
     
@@ -52,6 +54,8 @@ enum AppRouter: APIEndpoint {
             return "/products/search"
         case .login:
             return "/api/v1/auth/login"
+        case .firebaseLogin: return "/api/v1/auth/firebase"
+        case .ssoLogin: return "/api/v1/auth/sso"
         case .submitOrder:
             return "/orders"
         case .getProfile:
@@ -62,26 +66,24 @@ enum AppRouter: APIEndpoint {
     // Penentuan Parameter (Body/Query)
     var parameters: Parameters? {
         switch self {
-        case .searchProducts(let query, let limit):
-            return ["q": query, "limit": limit] // Query Parameters (GET)
         case .login(let credentials):
-            return credentials // JSON Body Data (POST)
-        case .submitOrder(let data):
-            return data // JSON Body Data (POST)
-        case .getCategories, .getProfile:
-            return nil // GET tanpa parameter body/query
+            return credentials
+        case .firebaseLogin(let token):
+            return ["firebase_token": token]
+        case .ssoLogin(let token, let provider):
+            return ["token": token, "provider": provider]
+        case .searchProducts(let query, let limit):
+            return ["q": query, "limit": limit]
+        default:
+            return nil
         }
     }
     
     // Penentuan Encoding
     var encoding: ParameterEncoding {
-        switch self {
-        case .searchProducts:
-            return URLEncoding.default // GET menggunakan Query Encoding
-        case .login, .submitOrder:
-            return JSONEncoding.default // POST menggunakan JSON Body Encoding
-        default:
-            return URLEncoding.default // Default untuk GET/kasus tanpa parameter
+        switch self.method {
+        case .post: return JSONEncoding.default
+        default: return URLEncoding.default
         }
     }
     
@@ -107,10 +109,10 @@ enum AppRouter: APIEndpoint {
 extension AppRouter {
     var isAuthRequired: Bool {
         switch self {
-        case .login:
-            return false // TIDAK perlu token untuk login
-        case .getCategories, .searchProducts, .getProfile, .submitOrder:
-            return true // Semua endpoint ini memerlukan token
+        case .login, .firebaseLogin, .ssoLogin: // Semua jenis login TIDAK butuh token
+            return false
+        default:
+            return true
         }
     }
 }
