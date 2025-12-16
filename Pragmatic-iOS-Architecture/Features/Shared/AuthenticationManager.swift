@@ -8,7 +8,6 @@
 import Foundation
 import Combine
 
-@MainActor
 final class AuthenticationManager: ObservableObject {
 
     // MARK: - Published State
