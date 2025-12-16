@@ -8,14 +8,14 @@
 import Foundation
 
 // MARK: - 1. Meta (Reusable)
-struct Meta: Decodable {
+struct Meta: Codable {
     let message: String
     let code: Int
     let status: String
 }
 
 // MARK: - 2. ServerResponse (Reusable Generic Wrapper)
-struct ServerResponse<T: Decodable>: Decodable {
+struct ServerResponse<T: Codable>: Codable {
     let meta: Meta
     let data: T? // Tipe data unik (T) yang berisi payload
 }

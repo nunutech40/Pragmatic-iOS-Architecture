@@ -28,3 +28,18 @@ struct UserProfileResponse: Codable {
         case kmpoin
     }
 }
+
+extension UserProfileResponse {
+    static func dummySuccess() -> UserProfileResponse {
+        return UserProfileResponse(
+            id: 99,
+            fullname: "Test User Full Profile",
+            username: "testuser",
+            email: "test@example.com",
+            noTelp: "081234567890", // Data yang hanya ada di profile
+            photoProfileUrl: "https://mock.url/photo.jpg",
+            joinDate: "2024-01-01",
+            kmpoin: 1500 // Data yang hanya ada di profile
+        )
+    }
+}

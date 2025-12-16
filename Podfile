@@ -11,8 +11,8 @@ target 'Pragmatic-iOS-Architecture' do
     # Pods for testing
   end
 
-  target 'Pragmatic-iOS-ArchitectureUITests' do
-    # Pods for testing
-  end
+#  target 'Pragmatic-iOS-ArchitectureUITests' do
+#    # Pods for testing
+#  end
 
 end

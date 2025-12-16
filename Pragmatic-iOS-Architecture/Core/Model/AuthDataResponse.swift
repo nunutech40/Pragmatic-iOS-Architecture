@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct AuthDataResponse: Decodable {
+struct AuthDataResponse: Codable {
     let accessToken: String
     let refreshToken: String
     let tokenType: String
@@ -36,3 +36,22 @@ struct UserInfo: Codable {
     }
 }
 
+
+extension AuthDataResponse {
+    static func dummySuccess() -> AuthDataResponse {
+        let dummyUser = UserInfo(
+            id: 99,
+            partnerId: 1,
+            partnerNo: "A1",
+            username: "testuser",
+            fullname: "Test User",
+            email: "test@example.com"
+        )
+        return AuthDataResponse(
+            accessToken: "mock.access.token",
+            refreshToken: "mock.refresh.token",
+            tokenType: "Bearer",
+            userInfo: dummyUser
+        )
+    }
+}

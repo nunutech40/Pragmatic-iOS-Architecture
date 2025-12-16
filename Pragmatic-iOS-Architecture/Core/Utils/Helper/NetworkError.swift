@@ -4,6 +4,7 @@
 //
 //  Created by Nunu Nugraha on 03/12/25.
 //
+
 import Foundation
 
 enum NetworkError: Error, LocalizedError {

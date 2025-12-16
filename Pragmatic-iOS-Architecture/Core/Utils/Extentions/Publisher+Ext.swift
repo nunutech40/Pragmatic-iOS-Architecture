@@ -4,6 +4,7 @@
 //
 //  Created by Nunu Nugraha on 03/12/25.
 //
+
 import Combine
 import Foundation
 
@@ -17,7 +18,7 @@ private struct ErrorMeta: Decodable {
 
 extension Publisher where Output == Data, Failure == NetworkError {
     
-    func parseAPIResponse<T: Decodable>(type: T.Type) -> AnyPublisher<T, Error> {
+    func parseAPIResponse<T: Codable>(type: T.Type) -> AnyPublisher<T, Error> {
         return self
         // 1. Decode ke Wrapper Standard (Happy Path 200)
             .decode(type: ServerResponse<T>.self, decoder: JSONDecoder())
