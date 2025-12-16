@@ -55,3 +55,16 @@ extension AuthDataResponse {
         )
     }
 }
+
+extension UserInfo {
+    static func dummySuccess() -> UserInfo {
+        return UserInfo(
+            id: 99,
+            partnerId: 1,
+            partnerNo: "A1",
+            username: "testuser",
+            fullname: "Test User",
+            email: "test@example.com"
+        )
+    }
+}
