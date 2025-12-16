@@ -26,17 +26,21 @@ final class HomeViewModel: ObservableObject {
 
     // MARK: - Load Profile
     func loadProfile() {
+        guard user == nil else {
+            print("LOG: LoadProfile dihentikan karena user sudah ada.") // Tambahkan log ini saat debugging
+            return
+        }
         isLoading = true
         errorMessage = ""
-
+        
         repository
             .getProfile()
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
                 guard let self else { return }
-
+                
                 self.isLoading = false
-
+                
                 if case .failure(let error) = completion {
                     self.errorMessage = error.localizedDescription
                 }
