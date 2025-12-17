@@ -103,6 +103,25 @@ Lapisan global yang bertanggung jawab atas:
 
 ---
 
+## 🧪 Strategi Pengujian (Unit Testing)
+
+Proyek ini sangat menekankan pentingnya pengujian unit untuk memastikan keandalan dan memvalidasi setiap komponen bekerja sesuai harapan.
+
+### Fokus Pengujian:
+
+- **ViewModels:** Menguji logika bisnis, transformasi data, dan interaksi dengan repositori.
+- **Repositories:** Memastikan pengambilan, penyimpanan, dan manipulasi data dilakukan dengan benar, seringkali menggunakan mock service untuk mengisolasi ketergantungan jaringan atau penyimpanan lokal.
+- **Utility/Helper Functions:** Memvalidasi fungsi-fungsi pembantu bekerja secara akurat di berbagai skenario.
+
+### Manfaat:
+
+- **Keandalan Kode:** Memastikan setiap unit kode berfungsi dengan benar secara terpisah.
+- **Memudahkan Refactoring:** Memberikan jaring pengaman saat melakukan perubahan kode.
+- **Dokumentasi Hidup:** Tes berfungsi sebagai contoh bagaimana komponen seharusnya digunakan.
+- **Deteksi Regresi Dini:** Mencegah bug baru muncul saat ada perubahan.
+
+---
+
 ## 📊 Status Proyek
 
 | Fitur | Status | Catatan |
